@@ -83,15 +83,15 @@ A10_LISTENER_OPTS = [
     cfg.StrOpt('template_virtual_port',
                default=None,
                max_length=127,
-               help=_('Virtual port template (Virtual port template name)')),
+               help=_('Provide an existing virtual port template name on VThunder')),
     cfg.StrOpt('template_tcp',
                default=None,
                max_length=127,
-               help=_('TCP Proxy Template name')),
+               help=_('Provide an existing TCP template name on VThunder')),
     cfg.StrOpt('template_policy',
                default=None,
                max_length=127,
-               help=_('Policy Template (Policy template name).')),
+               help=_('Provide an existing policy template name on VThunder')),
     cfg.BoolOpt('autosnat', default=False,
                 help=_('Enable autosnat')),
     cfg.IntOpt('conn_limit', min=1, max=64000000,
@@ -100,7 +100,7 @@ A10_LISTENER_OPTS = [
     cfg.StrOpt('template_http',
                default=None,
                max_length=127,
-               help=_('HTTP Template Name')),
+               help=_('Provide an existing HTTP template name on VThunder')),
     cfg.BoolOpt('use_rcv_hop_for_resp',
                 default=False,
                 help=_('Use receive hop for response to client')),
@@ -109,13 +109,13 @@ A10_LISTENER_OPTS = [
 A10_SERVICE_GROUP_OPTS = [
     cfg.StrOpt('template_server',
                default=None,
-               help=_('Service Group Server Template')),
+               help=_('Provide an existing service group server template name on VThunder')),
     cfg.StrOpt('template_port',
                default=None,
-               help=_('Service Group Port Template')),
+               help=_('Provide an existing service group port template name on VThunder')),
     cfg.StrOpt('template_policy',
                default=None,
-               help=_('Service Group Policy Template')),
+               help=_('Provide an existing service group policy template name on VThunder')),
 ]
 
 A10_SERVER_OPTS = [
@@ -127,7 +127,7 @@ A10_SERVER_OPTS = [
                help=_('Connection Resume')),
     cfg.StrOpt('template_server',
                default=None,
-               help=_('Template Server')),
+               help=_('Provide an existing template Server name on VThunder')),
 ]
 
 A10_HARDWARE_THUNDER_OPTS = [
