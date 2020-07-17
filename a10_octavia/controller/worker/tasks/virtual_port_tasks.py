@@ -38,6 +38,8 @@ class ListenersParent(object):
         use_rcv_hop = CONF.listener.use_rcv_hop_for_resp
         virtual_port_templates = {}
         template_virtual_port = CONF.listener.template_virtual_port
+        if template_virtual_port == 'None':
+            template_virtual_port = None
         virtual_port_templates['template-virtual-port'] = template_virtual_port
 
         template_args = {}
@@ -66,12 +68,18 @@ class ListenersParent(object):
                     # TODO(hthompson6) work around for issue in acos client
                     listener.protocol = listener.protocol.lower()
                     virtual_port_template = CONF.listener.template_http
+                    if virtual_port_template == 'None':
+                        virtual_port_template = None
                     virtual_port_templates['template-http'] = virtual_port_template
                 else:
                     virtual_port_template = CONF.listener.template_tcp
+                    if virtual_port_template == 'None':
+                        virtual_port_template = None
                     virtual_port_templates['template-tcp'] = virtual_port_template
 
                 virtual_port_template = CONF.listener.template_policy
+                if virtual_port_template == 'None':
+                    virtual_port_template = None
                 virtual_port_templates['template-policy'] = virtual_port_template
 
                 # Add all config filters here
