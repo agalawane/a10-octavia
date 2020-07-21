@@ -40,6 +40,13 @@ class ListenersParent(object):
         virtual_port_templates = {}
         template_virtual_port = CONF.listener.template_virtual_port
         virtual_port_templates['template-virtual-port'] = template_virtual_port
+        if autosnat and no_dest_nat:
+            LOG.warning('SNAT configuration does not work in DSR mode on vThunder '
+                        'as `autosnat` and `no_dest_nat` set True under `[listener]` '
+                        'section in a10-octavia.conf. '
+                        'Hence setting both of them to False')
+            autosnat = False
+            no_dest_nat = False
 
         template_args = {}
 
