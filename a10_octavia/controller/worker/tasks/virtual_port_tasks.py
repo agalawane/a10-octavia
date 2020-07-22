@@ -67,7 +67,7 @@ class ListenersParent(object):
             listener.protocol = listener.protocol.lower()
             virtual_port_template = CONF.listener.template_http
             virtual_port_templates['template-http'] = virtual_port_template
-        else:
+        if listener.protocol == 'TCP':
             virtual_port_template = CONF.listener.template_tcp
             virtual_port_templates['template-tcp'] = virtual_port_template
 
