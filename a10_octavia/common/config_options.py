@@ -315,7 +315,11 @@ A10_NOVA_OPTS = [
                help=_('Availability zone to use for creating Amphorae')),
 ]
 
-
+DATABASE_CONNECTION_OPT = [
+    cfg.StrOpt('connection',
+               default=None,
+               help=_('Database connection'))
+]
 # Register the configuration options
 cfg.CONF.register_opts(A10_GLOBAL_OPTS, group='a10_global')
 cfg.CONF.register_opts(A10_CONTROLLER_WORKER_OPTS, group='a10_controller_worker')
@@ -328,6 +332,7 @@ cfg.CONF.register_opts(A10_LISTENER_OPTS, group='listener')
 cfg.CONF.register_opts(A10_SERVICE_GROUP_OPTS, group='service_group')
 cfg.CONF.register_opts(A10_SERVER_OPTS, group='server')
 cfg.CONF.register_opts(A10_HARDWARE_THUNDER_OPTS, group='hardware_thunder')
+cfg.CONF.register_opts(DATABASE_CONNECTION_OPT, group='database_connection')
 
 
 # Ensure that the control exchange is set correctly

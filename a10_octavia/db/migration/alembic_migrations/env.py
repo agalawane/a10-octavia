@@ -6,7 +6,12 @@ from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 
 from alembic import context
-from a10_octavia import a10_config
+from oslo_config import cfg
+from oslo_log import log as logging
+
+
+CONF = cfg.CONF
+LOG = logging.getLogger(__name__)
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
@@ -22,8 +27,7 @@ fileConfig(config.config_file_name)
 target_metadata = None
 
 if getattr(config, 'connection', None) is None:
-    a10_cfg = a10_config.A10Config()
-    config.set_main_option("sqlalchemy.url", a10_cfg.get('database_connection'))
+    config.set_main_option("sqlalchemy.url", CONF.database_connection.connection)
 
 
 # other values from the config, defined by the needs of env.py,

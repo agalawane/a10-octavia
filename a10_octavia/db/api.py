@@ -13,14 +13,17 @@
 #    under the License.
 
 
+from oslo_config import cfg
+from oslo_log import log as logging
 from contextlib import contextmanager
 
 import sqlalchemy
 import sqlalchemy.ext.declarative
 import sqlalchemy.orm
-from a10_octavia import a10_config
 
-A10_CFG = None
+CONF = cfg.CONF
+LOG = logging.getLogger(__name__)
+
 Base = sqlalchemy.ext.declarative.declarative_base()
 
 
@@ -29,13 +32,9 @@ def get_base():
 
 
 def get_engine(url=None):
-    global A10_CFG
 
     if url is None:
-        if A10_CFG is None:
-            A10_CFG = a10_config.A10Config()
-
-        url = A10_CFG.get('database_connection')
+        url = CONF.database_connection.connection
 
     return sqlalchemy.create_engine(url)
 
