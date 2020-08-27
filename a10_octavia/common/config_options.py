@@ -45,6 +45,8 @@ A10_GLOBAL_OPTS = [
                default=a10constants.FLAT,
                choices=a10constants.SUPPORTED_NETWORK_TYPE,
                help=_('Neutron ML2 Tenent Network Type')),
+    cfg.BoolOpt('enable_hierarchical_multitenancy', default=False,
+                help=_('Enable hierarchical multitenancy'))
 ]
 
 A10_VTHUNDER_OPTS = [

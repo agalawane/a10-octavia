@@ -28,6 +28,7 @@ from octavia.db import api as db_apis
 from octavia.db import repositories as repo
 
 from a10_octavia.common import a10constants
+from a10_octavia.common import utils
 from a10_octavia.controller.worker.flows import a10_health_monitor_flows
 from a10_octavia.controller.worker.flows import a10_l7policy_flows
 from a10_octavia.controller.worker.flows import a10_l7rule_flows
@@ -190,7 +191,12 @@ class A10ControllerWorker(base_taskflow.BaseTaskFlowEngine):
             raise db_exceptions.NoResultFound
 
         load_balancer = listener.load_balancer
-        if listener.project_id in CONF.hardware_thunder.devices:
+        import rpdb; rpdb.set_trace()
+        parent_project_id = None
+        if CONF.a10_global.enable_hierarchical_multitenancy and CONF.a10_global.use_parent_partition:
+            parent_project_id = utils.get_parent_project(listener.project_id)
+
+        if listener.project_id in CONF.hardware_thunder.devices or parent_project_id in CONF.hardware_thunder.devices:
             create_listener_tf = self._taskflow_load(self._listener_flows.
                                                      get_rack_vthunder_create_listener_flow(
                                                          listener.project_id),
@@ -216,7 +222,10 @@ class A10ControllerWorker(base_taskflow.BaseTaskFlowEngine):
         listener = self._listener_repo.get(db_apis.get_session(),
                                            id=listener_id)
         load_balancer = listener.load_balancer
-        if listener.project_id in CONF.hardware_thunder.devices:
+        if CONF.a10_global.enable_hierarchical_multitenancy and CONF.a10_global.use_parent_partition:
+            parent_project_id = utils.get_parent_project(listener.project_id)
+
+        if listener.project_id in CONF.hardware_thunder.devices or parent_project_id in CONF.hardware_thunder.devices:
             delete_listener_tf = self._taskflow_load(
                 self._listener_flows.get_delete_rack_listener_flow(),
                 store={constants.LOADBALANCER: load_balancer,
@@ -282,7 +291,12 @@ class A10ControllerWorker(base_taskflow.BaseTaskFlowEngine):
         store[constants.UPDATE_DICT] = {
             constants.TOPOLOGY: topology
         }
-        if lb.project_id in CONF.hardware_thunder.devices:
+        import rpdb; rpdb.set_trace()
+        parent_project_id = None
+        if CONF.a10_global.enable_hierarchical_multitenancy and CONF.a10_global.use_parent_partition:
+            parent_project_id = utils.get_parent_project(lb.project_id)
+
+        if lb.project_id in CONF.hardware_thunder.devices or parent_project_id in CONF.hardware_thunder.devices:
             create_lb_flow = self._lb_flows.get_create_rack_vthunder_load_balancer_flow(
                 vthunder_conf=CONF.hardware_thunder.devices[lb.project_id],
                 topology=topology, listeners=lb.listeners)
@@ -372,7 +386,12 @@ class A10ControllerWorker(base_taskflow.BaseTaskFlowEngine):
         load_balancer = pool.load_balancer
 
         topology = CONF.a10_controller_worker.loadbalancer_topology
-        if member.project_id in CONF.hardware_thunder.devices:
+        import rpdb; rpdb.set_trace()
+        parent_project_id = None
+        if CONF.a10_global.enable_hierarchical_multitenancy and CONF.a10_global.use_parent_partition:
+            parent_project_id = utils.get_parent_project(member.project_id)
+
+        if member.project_id in CONF.hardware_thunder.devices or parent_project_id in CONF.hardware_thunder.devices:
             create_member_tf = self._taskflow_load(
                 self._member_flows.get_rack_vthunder_create_member_flow(),
                 store={
@@ -406,8 +425,12 @@ class A10ControllerWorker(base_taskflow.BaseTaskFlowEngine):
         pool = member.pool
         listeners = pool.listeners
         load_balancer = pool.load_balancer
+        parent_project_id = None
+        
+        if CONF.a10_global.enable_hierarchical_multitenancy and CONF.a10_global.use_parent_partition:
+            parent_project_id = utils.get_parent_project(member.project_id)
 
-        if member.project_id in CONF.hardware_thunder.devices:
+        if member.project_id in CONF.hardware_thunder.devices or parent_project_id in CONF.hardware_thunder.devices:
             delete_member_tf = self._taskflow_load(
                 self._member_flows.get_rack_vthunder_delete_member_flow(),
                 store={constants.MEMBER: member, constants.LISTENERS: listeners,
@@ -453,8 +476,12 @@ class A10ControllerWorker(base_taskflow.BaseTaskFlowEngine):
         pool = member.pool
         listeners = pool.listeners
         load_balancer = pool.load_balancer
+        parent_project_id = None
 
-        if member.project_id in CONF.hardware_thunder.devices:
+        if CONF.a10_global.enable_hierarchical_multitenancy and CONF.a10_global.use_parent_partition:
+            parent_project_id = utils.get_parent_project(listener.project_id)
+
+        if listener.project_id in CONF.hardware_thunder.devices or parent_project_id in CONF.hardware_thunder.devices:
             update_member_tf = self._taskflow_load(self._member_flows.
                                                    get_rack_vthunder_update_member_flow(),
                                                    store={constants.MEMBER: member,
