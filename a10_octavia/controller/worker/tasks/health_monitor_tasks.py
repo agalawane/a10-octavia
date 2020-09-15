@@ -16,6 +16,7 @@
 from acos_client import errors as acos_errors
 from oslo_config import cfg
 from oslo_log import log as logging
+from requests import exceptions as req_exceptions
 from requests.exceptions import ConnectionError
 from taskflow import task
 
@@ -68,6 +69,11 @@ class CreateAndAssociateHealthMonitor(task.Task):
                 "Failed to associate health monitor %s to pool %s",
                 health_mon.id, health_mon.pool_id)
             raise e
+        if vthunder.partition_name != "shared":
+            try:
+                self.axapi_client.system.action.write_memory(partition="shared")
+            except (acos_errors.ACOSException, req_exceptions.ConnectionError):
+                LOG.warning("Failed to write memory on thunder device: %s", vthunder.ip_address)
 
     @axapi_client_decorator
     def revert(self, listeners, health_mon, vthunder, *args, **kwargs):
@@ -104,6 +110,12 @@ class DeleteHealthMonitor(task.Task):
             LOG.exception("Failed to delete health monitor: %s", health_mon.id)
             raise e
 
+        if vthunder.partition_name != "shared":
+            try:
+                self.axapi_client.system.action.write_memory(partition="shared")
+            except (acos_errors.ACOSException, req_exceptions.ConnectionError):
+                LOG.warning("Failed to write memory on thunder device: %s", vthunder.ip_address)
+
 
 class UpdateHealthMonitor(task.Task):
     """Task to update Health Monitor"""
@@ -132,3 +144,9 @@ class UpdateHealthMonitor(task.Task):
         except (acos_errors.ACOSException, ConnectionError) as e:
             LOG.exception("Failed to update health monitor: %s", health_mon.id)
             raise e
+
+        if vthunder.partition_name != "shared":
+            try:
+                self.axapi_client.system.action.write_memory(partition="shared")
+            except (acos_errors.ACOSException, req_exceptions.ConnectionError):
+                LOG.warning("Failed to write memory on thunder device: %s", vthunder.ip_address)
