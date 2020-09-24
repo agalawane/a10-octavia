@@ -77,3 +77,9 @@ class TestHandlerHealthMonitorTasks(BaseTaskTestCase):
         mock_hm.axapi_client = self.client_mock
         mock_hm.execute(HM, VTHUNDER)
         self.client_mock.slb.hm.delete.assert_called_with(a10constants.MOCK_HM_ID)
+
+    def test_revert_hm_create_task(self):
+        mock_hm = task.CreateAndAssociateHealthMonitor()
+        mock_hm.axapi_client = self.client_mock
+        mock_hm.revert(LISTENERS, HM, VTHUNDER)
+        self.client_mock.slb.hm.delete.assert_called_with(a10constants.MOCK_HM_ID)
