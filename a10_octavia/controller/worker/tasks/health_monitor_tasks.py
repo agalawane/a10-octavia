@@ -55,8 +55,8 @@ class CreateAndAssociateHealthMonitor(task.Task):
                 flavors.update(parsed_exprs)
                 args.update({'monitor': flavors})
         try:
-            health_mon.type = openstack_mappings.hm_type(self.axapi_client, health_mon.type)
-        except Exception as e:
+            health_mon_type = openstack_mappings.hm_type(self.axapi_client, health_mon.type)
+        except:
             raise exceptions.ProviderUnsupportedOptionError(
                 prov="A10",
                 user_msg=("A health monitor of  type TLS-HELLO is not supported by A10 provider.\n"
@@ -64,7 +64,7 @@ class CreateAndAssociateHealthMonitor(task.Task):
         try:
             post_data = CONF.health_monitor.post_data
             self.axapi_client.slb.hm.create(health_mon.id,
-                                            health_mon.type,
+                                            health_mon_type,
                                             health_mon.delay, health_mon.timeout,
                                             health_mon.rise_threshold, method=method,
                                             port=listeners[0].protocol_port, url=url,
