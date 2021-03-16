@@ -51,7 +51,7 @@ class LoadBalancerFlows(object):
         self.member_flows = member_flows.MemberFlows()
         self.vthunder_flows = vthunder_flows.VThunderFlows()
 
-    def get_create_load_balancer_flow(self, topology, listeners=None):
+    def get_create_load_balancer_flow(self, deleteCompute, topology, listeners=None):
         """Flow to create a load balancer"""
 
         f_name = constants.CREATE_LOADBALANCER_FLOW
@@ -75,7 +75,7 @@ class LoadBalancerFlows(object):
         post_amp_prefix = constants.POST_LB_AMP_ASSOCIATION_SUBFLOW
         lb_create_flow.add(
             self.get_post_lb_vthunder_association_flow(
-                post_amp_prefix, topology, mark_active=(not listeners)))
+                post_amp_prefix, deleteCompute, topology, mark_active=(not listeners)))
         lb_create_flow.add(a10_database_tasks.GetFlavorData(
             rebind={a10constants.LB_RESOURCE: constants.LOADBALANCER},
             provides=constants.FLAVOR_DATA))
@@ -126,7 +126,7 @@ class LoadBalancerFlows(object):
 
         return flows + [amps_flow]
 
-    def get_post_lb_vthunder_association_flow(self, prefix, topology,
+    def get_post_lb_vthunder_association_flow(self, prefix, deleteCompute, topology,
                                               mark_active=True):
         """Flow to manage networking after lb creation"""
 
@@ -141,7 +141,11 @@ class LoadBalancerFlows(object):
         new_LB_net_subflow = self.get_new_lb_networking_subflow(topology)
         post_create_lb_flow.add(new_LB_net_subflow)
 
-        if topology == constants.TOPOLOGY_ACTIVE_STANDBY:
+        if deleteCompute and topology == constants.TOPOLOGY_ACTIVE_STANDBY:
+            post_create_lb_flow.add(
+                vthunder_tasks.CreateHealthMonitorOnVThunder(
+                    name=a10constants.CREATE_HEALTH_MONITOR_ON_VTHUNDER_MASTER,
+                    requires=a10constants.VTHUNDER))
             vrrp_subflow = self.vthunder_flows.get_vrrp_subflow(prefix)
             post_create_lb_flow.add(vrrp_subflow)
 
