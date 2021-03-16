@@ -291,14 +291,22 @@ class LoadBalancerFlows(object):
             inject={a10constants.STATUS: constants.ACTIVE}))
         if topology == constants.TOPOLOGY_ACTIVE_STANDBY:
             new_LB_net_subflow.add(
-                vthunder_tasks.CreateHealthMonitorOnVThunder(
-                    name=a10constants.CREATE_HEALTH_MONITOR_ON_VTHUNDER_MASTER,
-                    requires=a10constants.VTHUNDER))
-            new_LB_net_subflow.add(
                 a10_database_tasks.GetBackupVThunderByLoadBalancer(
                     name=a10constants.GET_BACKUP_VTHUNDER_BY_LB,
                     requires=constants.LOADBALANCER,
                     provides=a10constants.BACKUP_VTHUNDER))
+            new_LB_net_subflow.add(vthunder_tasks.UpdateAcosVersionInVthunderEntry(
+                name=a10constants.UPDATE_ACOS_VERSION_FOR_BACKUP_VTHUNDER,
+                requires=constants.LOADBALANCER,
+                rebind={a10constants.VTHUNDER: a10constants.BACKUP_VTHUNDER}))
+            new_LB_net_subflow.add(a10_database_tasks.GetBackupVThunderByLoadBalancer(
+                name=a10constants.GET_BACKUP_LOADBALANCER_FROM_DB,
+                requires=constants.LOADBALANCER,
+                provides=a10constants.BACKUP_VTHUNDER))
+            new_LB_net_subflow.add(vthunder_tasks.AmphoraePostVIPPlug(
+                name=a10constants.AMP_POST_VIP_PLUG,
+                requires=constants.LOADBALANCER,
+                rebind={a10constants.VTHUNDER: a10constants.BACKUP_VTHUNDER}))
             new_LB_net_subflow.add(
                 vthunder_tasks.VThunderComputeConnectivityWait(
                     name=a10constants.BACKUP_CONNECTIVITY_WAIT,
