@@ -143,3 +143,5 @@ MEMBER_LIST = 'member_list'
 SUBNET_LIST = 'subnet_list'
 
 PARTITION_PROJECT_LIST = 'partition_project_list'
+IFNUM_BACKUP = 'ifnum_backup'
+IFNUM_MASTER = 'ifnum_master'

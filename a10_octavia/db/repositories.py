@@ -260,9 +260,8 @@ class VThunderRepository(BaseRepository):
     def get_delete_compute_flag(self, session, compute_id):
         if compute_id:
             count = session.query(self.model_class).filter(
-                or_(self.model_class.compute_id == compute_id,
-                    self.model_class.status == "ACTIVE",
-                    self.model_class.status == "PENDING_CREATE")).count()
+                and_(self.model_class.compute_id == compute_id,
+                    self.model_class.status == "ACTIVE")).count()
             if count < 2:
                 return True
 
@@ -326,6 +325,18 @@ class VThunderRepository(BaseRepository):
         with session.begin(subtransactions=True):
             session.query(self.model_class).filter_by(
                     ip_address=ip_address, partition_name=partition).update(model_kwargs)
+
+    def get_vthunder_by_project_id_and_role(self, session, project_id, role):
+        import rpdb; rpdb.set_trace()
+        model = session.query(self.model_class).filter(
+            self.model_class.project_id == project_id).filter(
+            and_(self.model_class.status == "ACTIVE",
+                 self.model_class.role == role)).first()
+
+        if not model:
+            return None
+
+        return model.to_data_model()
 
 
 class LoadBalancerRepository(repo.LoadBalancerRepository):

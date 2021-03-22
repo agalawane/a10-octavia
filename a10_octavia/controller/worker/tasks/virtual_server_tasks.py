@@ -70,6 +70,7 @@ class CreateVirtualServerTask(LoadBalancerParent, task.Task):
     @axapi_client_decorator
     def execute(self, loadbalancer, vthunder, flavor_data=None):
         try:
+            import rpdb; rpdb.set_trace()
             self.set(self.axapi_client.slb.virtual_server.create, loadbalancer, flavor_data)
             LOG.debug("Successfully created load balancer: %s", loadbalancer.id)
         except (acos_errors.ACOSException, exceptions.ConnectionError) as e:

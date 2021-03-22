@@ -278,12 +278,6 @@ class A10ControllerWorker(base_taskflow.BaseTaskFlowEngine):
         """Function to create load balancer for A10 provider"""
 
         lb = self._lb_repo.get(db_apis.get_session(), id=load_balancer_id)
-        vthunder = self._vthunder_repo.get_vthunder_from_lb(db_apis.get_session(),
-                                                            load_balancer_id)
-        deleteCompute = False
-        if vthunder:
-            deleteCompute = self._vthunder_repo.get_delete_compute_flag(db_apis.get_session(),
-                                                                        vthunder.compute_id)
         if not lb:
             LOG.warning('Failed to fetch %s %s from DB. Retrying for up to '
                         '60 seconds.', 'load_balancer', load_balancer_id)
@@ -308,7 +302,7 @@ class A10ControllerWorker(base_taskflow.BaseTaskFlowEngine):
             create_lb_tf = self._taskflow_load(create_lb_flow, store=store)
         else:
             create_lb_flow = self._lb_flows.get_create_load_balancer_flow(
-                deleteCompute, topology=topology, listeners=lb.listeners)
+                load_balancer_id, topology=topology, listeners=lb.listeners)
             create_lb_tf = self._taskflow_load(create_lb_flow, store=store)
 
         with tf_logging.DynamicLoggingListener(

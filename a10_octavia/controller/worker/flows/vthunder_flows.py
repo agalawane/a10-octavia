@@ -236,6 +236,7 @@ class VThunderFlows(object):
         vthunder_for_amphora_subflow.add(a10_database_tasks.GetComputeForProject(
             name=sf_name + '-' + a10constants.GET_COMPUTE_FOR_PROJECT,
             requires=constants.LOADBALANCER,
+            inject={"role": role},
             provides=constants.COMPUTE_ID))
         vthunder_for_amphora_subflow.add(database_tasks.UpdateAmphoraComputeId(
             name=sf_name + '-' + constants.UPDATE_AMPHORA_COMPUTEID,
@@ -364,6 +365,10 @@ class VThunderFlows(object):
         configure_vrrp_subflow.add(vthunder_tasks.ConfigureaVCSBackup(
             name=sf_name + '-' + a10constants.CONFIGURE_AVCS_SYNC_FOR_BACKUP,
             rebind={a10constants.VTHUNDER: a10constants.BACKUP_VTHUNDER}))
+        configure_vrrp_subflow.add(vthunder_tasks.VThunderComputeConnectivityWait(
+            name=sf_name + '-a' + a10constants.WAIT_FOR_BACKUP_SYNC,
+            rebind={a10constants.VTHUNDER: a10constants.BACKUP_VTHUNDER},
+            requires=(constants.AMPHORA)))
         return configure_vrrp_subflow
 
     def get_rack_vthunder_for_lb_subflow(
