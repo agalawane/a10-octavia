@@ -72,15 +72,13 @@ class CreateVThunderEntry(BaseDatabaseTask):
         username = CONF.vthunder.default_vthunder_username
         password = CONF.vthunder.default_vthunder_password
         axapi_version = CONF.vthunder.default_axapi_version
+        topology = CONF.a10_controller_worker.loadbalancer_topology
 
         if role == constants.ROLE_MASTER:
-            topology = "ACTIVE_STANDBY"
             role = "MASTER"
         elif role == constants.ROLE_BACKUP:
-            topology = "ACTIVE_STANDBY"
             role = "BACKUP"
         else:
-            topology = "STANDALONE"
             role = "MASTER"
 
         self.vthunder_repo.create(
@@ -921,6 +919,7 @@ class MarkLoadBalancersActiveInDB(BaseDatabaseTask):
 class GetLoadBalancerListByProjectID(BaseDatabaseTask):
 
     def execute(self, vthunder):
+        import rpdb; rpdb.set_trace()
         try:
             if vthunder:
                 loadbalancers_list = self.loadbalancer_repo.get_lbs_by_project_id(

@@ -100,7 +100,7 @@ class AmphoraePostVIPPlug(VThunderBaseTask):
     """Task to reboot and configure vThunder device"""
 
     @axapi_client_decorator
-    def execute(self, loadbalancer, vthunder):
+    def execute(self, loadbalancer, vthunder, added_ports):
         """Execute get_info routine for a vThunder until it responds."""
         vthunder = self.vthunder_repo.get_vthunder_by_project_id_and_role(db_apis.get_session(),
                                                                           loadbalancer.project_id,
@@ -111,7 +111,8 @@ class AmphoraePostVIPPlug(VThunderBaseTask):
                 db_apis.get_session(),
                 loadbalancer.project_id,
                 loadbalancer.vip.subnet_id)
-        if lb_exists_flag:
+        amphora_id = loadbalancer.amphorae[0].id
+        if len(added_ports[amphora_id]) > 0:
             try:
                 self.axapi_client.system.action.write_memory()
                 self.axapi_client.system.action.reload_reboot_for_interface_attachment(
@@ -151,8 +152,20 @@ class EnableInterface(VThunderBaseTask):
     """Task to configure vThunder ports"""
 
     @axapi_client_decorator
-    def execute(self, vthunder):
-        if vthunder.topology == "STANDALONE":
+    def execute(self, vthunder, loadbalancer):
+        '''vthunders = self.vthunder_repo.get_vthunder_by_project_id(db_apis.get_session(),
+                                                                 loadbalancer.project_id)'''
+        vthunders = self.vthunder_repo.get_vthunder_by_project_id_and_role(db_apis.get_session(),
+                                                                          loadbalancer.project_id,
+                                                                          vthunder.role)
+        lb_exists_flag = False
+        if vthunders:
+            lb_exists_flag = self.loadbalancer_repo.check_lb_with_distinct_subnet_and_project(
+                db_apis.get_session(),
+                loadbalancer.project_id,
+                loadbalancer.vip.subnet_id)
+        #if vthunder.topology == "SINGLE" and not lb_exists_flag:
+        if not lb_exists_flag:
             try:
                 interfaces = self.axapi_client.interface.get_list()
                 for i in range(len(interfaces['interface']['ethernet-list'])):
@@ -169,14 +182,14 @@ class EnableInterfaceForMembers(VThunderBaseTask):
     """Task to enable an interface associated with a member"""
 
     @axapi_client_decorator
-    def execute(self, added_ports, loadbalancer, vthunder):
+    def execute(self, loadbalancer, vthunder, added_ports=None):
         """Enable specific interface of amphora"""
         try:
             amphora_id = loadbalancer.amphorae[0].id
             compute_id = loadbalancer.amphorae[0].compute_id
             network_driver = utils.get_network_driver()
             nics = network_driver.get_plugged_networks(compute_id)
-            if len(added_ports[amphora_id]) > 0:
+            if added_ports and len(added_ports[amphora_id]) > 0:
                 configured_interface = False
                 attempts = 5
                 while attempts > 0 and configured_interface is False:

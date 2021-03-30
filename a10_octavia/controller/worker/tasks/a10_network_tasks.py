@@ -62,7 +62,7 @@ class CalculateAmphoraDelta(BaseNetworkTask):
         LOG.debug("Calculating network delta for amphora id: %s", amphora.id)
         # Figure out what networks we want
         # seed with lb network(s)
-
+        import rpdb; rpdb.set_trace()
         desired_network_ids = set()
         desired_network_ids.update(CONF.controller_worker.amp_boot_network_list)
         member_networks = []
